@@ -165,7 +165,9 @@
     <div class="p-5 mb-4 bg-body-tertiary rounded-3">
       <div class="container-fluid py-5">
         <h1 class="display-5 fw-bold">TensorFlow.js Transfer Learning Demo: Robert Sloan</h1>
-         <h2>Deep Neural Network In the Browser   
+        
+   
+    <h2>Deep Neural Network In the Browser   
 
 
 
@@ -178,24 +180,32 @@
     
   <video id="webcam" autoplay muted playsinline></video>
 
- </div>
- 
-  <div class="btn-group-vertical">
+    </div>
+    <h2>Deep Neural Network In the Browser   
+
+
+
+      <div class="d-flex align-items-center" id="status">
+        <strong role="status">Awaiting TF.js load</strong>
+        <div class="spinner-border ms-auto" id="loadingIndicator" style="visibility: visible;" role="status" aria-hidden="false"></div>
+      </div>
+      </h2>
+      <div class="btn-group-vertical">
     <div>
-     <!-- <button id="detectEmotions" class="btn btn-primary btn-lg">Detect Emotions</button> -->
+      <button id="detectEmotions" class="btn btn-primary btn-lg">Detect Emotions</button>
       <br>
-     <span></span>
+     <span>or</span>
       <br>
     <button id="enableCam" class="btn btn-primary btn-lg">Enable Webcam</button>
     <br>
     <span>then</span>
     
     </div>
-  <div><button id="useRearCamera" class="btn btn-primary btn-lg">Use Rear Camera</button>
+  <div><button id="useRearCamera" class="btn btn-secondary">Use Rear Camera</button>
     <br>
     <span>or</span>
     <br>
-<button id="useFrontCamera" class="btn btn-primary btn-lg">Use Front Camera</button>
+<button id="useFrontCamera" class="btn btn-secondary">Use Front Camera</button>
 </div>
   <span>then</span>
 
@@ -227,7 +237,29 @@
       </div>
     </div>
 
-  
+    <div class="row align-items-md-stretch">
+      <div class="col-md-6">
+        <div class="h-100 p-5 text-bg-dark rounded-3">
+          <h2>Number Prediction Model </h2>
+          <div style="position: relative; padding-bottom: 56.25%; height: 0;"><iframe src="https://www.loom.com/embed/dc6b89bcc0ab4fef8fe0080e4486d0ac?sid=f8813885-798d-4c10-b9ae-5e3f2ffb8d41" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
+          <button class="btn btn-outline-light" type="button">Activate</button>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="h-100 p-5 bg-body-tertiary border rounded-3">
+          <h2>Chat With PDF </h2>
+
+          <p>.</p>
+          <button class="btn btn-outline-secondary" type="button">Activate</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="pt-3 mt-4 text-body-secondary border-top">
+      &copy; 2023
+    </footer>
+  </div>
   <script>
     let currentStream = null;
     const video = document.getElementById('webcam');
@@ -235,39 +267,25 @@
 
     let isDetecting = false;
 
-    async function loadEmotionModel() {
-        labelContainer.textContent = 'Loading Emotion model...';
-        emotionModel = await tf.loadLayersModel('model2/model.json');
-        labelContainer.textContent = 'Emotion Model loaded successfully';
+    async function loadModel() {
+        labelContainer.textContent = 'Loading model...';
+        model = await tf.loadLayersModel('model2/model.json');
+        labelContainer.textContent = 'Model loaded successfully';
     }
 
-    async function enableWebcam(facingMode = 'environment') { // Default to forward-facing camera
-      if (navigator.mediaDevices.getUserMedia) {
-          if (currentStream) {
-              currentStream.getTracks().forEach(track => track.stop());
-          }
-          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
-          video.srcObject = stream;
-          currentStream = stream;
-      }
-  }
-  
-  // Updated data collection logic with timeout
-  document.querySelectorAll('.dataCollector').forEach(button => {
-      button.addEventListener('click', function() {
-          const dataName = this.getAttribute('data-name');
-          startCollection(dataName); // Start data collection
-          
-          setTimeout(() => { // Stop after 3 seconds
-              stopCollection(dataName);
-              this.classList.remove('active'); // Assuming you use this to indicate active collection
-          }, 3000);
-      });
-  });
-  
+    async function enableWebcam(facingMode = 'user') {
+        if (navigator.mediaDevices.getUserMedia) {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
+            video.srcObject = stream;
+            currentStream = stream;
+        }
+    }
 
     async function predictEmotion() {
-        if (!emotionModel || !isDetecting) {
+        if (!model || !isDetecting) {
             console.error('Model not loaded or detection not enabled');
             return;
         }
@@ -309,10 +327,10 @@ document.getElementById('train').addEventListener('click', function() {
   setTimeout (() => {
     this.innerHTML = 'Train & Predict!';
     this.disabled = false;
-  }, 10000);
+  }, 5000);
 });
 
-document.getElementById('.dataCollector').forEach(button => {
+document.querySelectorAll('.dataCollector').forEach(button => {
   button.addEventListener('click', () => {
     if (button.classList.contains('active')) {
       startDataCollection(button);
@@ -325,6 +343,17 @@ document.getElementById('.dataCollector').forEach(button => {
   }, 2000);
 });
 
+function startDataCollection(button) {
+  const dataName = button.getAttribute('data-name');
+  // Assuming you have a function named startCollection in your script tag
+  startCollection(dataName);
+}
+
+function stopDataCollection(button) {
+  const dataName = button.getAttribute('data-name');
+  // Assuming you have a function named stopCollection in your script tag
+  stopCollection(dataName);
+}
 
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -339,20 +368,6 @@ document.getElementById('.dataCollector').forEach(button => {
     loadingIndicator.style.visibility = 'hidden';
   } else {
     console.error('Failed to load TensorFlow.js');
-  }
-});
-document.addEventListener('DOMContentLoaded', function() {
-  // Show loading indicator
-  const loadingEmotionIndicator = document.getElementById('loadingEmotionIndicator');
-  loadingEmotionIndicator.style.visibility = 'visible';
-
-  // TensorFlow.js load check
-  if (typeof tf !== 'undefined') {
-    console.log('Emotion Detection Model loaded successfully');
-    document.getElementById('status').textContent = 'Emotion Detection Model Loaded';
-    loadingEmotionIndicator.style.visibility = 'hidden';
-  } else {
-    console.error('Failed to load Emotion Detection Model');
   }
 });
 
@@ -406,7 +421,26 @@ window.onload = loadTensorFlowJS;
     return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
   }
 
+  // Tries to enable the camera
+function enableCam() {
+  if (hasGetUserMedia()) {
+    // Change facingMode to 'environment' to use the rear camera.
+    const constraints = {
+      video: { facingMode: 'user', width: 840, height: 480 }
+    };
 
+    navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+      VIDEO.srcObject = stream;
+      VIDEO.addEventListener('loadeddata', function() {
+        // Additional checks or actions once the video stream is available
+      });
+    }).catch(function(error) {
+      console.error('Camera access denied:', error);
+    });
+  } else {
+    console.warn('getUserMedia() is not supported by your browser');
+  }
+}
 
 
     
