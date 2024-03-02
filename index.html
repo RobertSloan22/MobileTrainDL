@@ -201,11 +201,12 @@
     <span>then</span>
     
     </div>
-  <div><button id="useRearCamera" class="btn btn-secondary">Use Rear Camera</button>
+  <div>
+    <button class="useRearCamera" class="btn btn-secondary">Use Rear Camera</button>
     <br>
     <span>or</span>
     <br>
-<button id="useFrontCamera" class="btn btn-secondary">Use Front Camera</button>
+<button class="useFrontCamera" class="btn btn-secondary">Use Front Camera</button>
 </div>
   <span>then</span>
 
@@ -273,16 +274,17 @@
         labelContainer.textContent = 'Model loaded successfully';
     }
 
-    async function enableWebcam(facingMode = 'user') {
-        if (navigator.mediaDevices.getUserMedia) {
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-            }
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
-            video.srcObject = stream;
-            currentStream = stream;
+async function enableWebcam(facingMode = 'user') {
+    if (navigator.mediaDevices.getUserMedia) {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
         }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
+        video.srcObject = stream;
+        currentStream = stream;
     }
+}
+
 
     async function predictEmotion() {
         if (!model || !isDetecting) {
@@ -314,6 +316,8 @@
     });
   document.getElementById('useRearCamera').addEventListener('click', () => enableWebcam('environment'));
   document.getElementById('useFrontCamera').addEventListener('click', () => enableWebcam('user'));
+document.getElementById('useRearCamera').addEventListener('click', () => enableWebcam('environment'));
+document.getElementById('useFrontCamera').addEventListener('click', () => enableWebcam('user'));
 
     loadModel();
 </script>
@@ -464,32 +468,23 @@ function enableCam() {
       TRAIN_BUTTON.addEventListener('click', trainAndPredict);
       RESET_BUTTON.addEventListener('click', reset);
       
-  
+  async function enableWebcam(facingMode = 'user') {
+    if (navigator.mediaDevices.getUserMedia) {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
+        video.srcObject = stream;
+        currentStream = stream;
+    }
+}
+document.getElementById('useRearCamera').addEventListener('click', () => enableWebcam('environment'));
+document.getElementById('useFrontCamera').addEventListener('click', () => enableWebcam('user'));
+
       
    
       
-      function enableCam() {
-        if (hasGetUserMedia()) {
-          // getUsermedia parameters.
-          const constraints = {
-            video: true,
-            width: 640, 
-            height: 480 
-          };
-      
-          // Activate the webcam stream.
-          navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-            VIDEO.srcObject = stream;
-            VIDEO.addEventListener('loadeddata', function() {
-              videoPlaying = true;
-              ENABLE_CAM_BUTTON.classList.add('removed');
-            });
-          });
-        } else {
-          console.warn('getUserMedia() is not supported by your browser');
-        }
-      }
-      //////
+
       function trainAndPredict() {
         async function trainAndPredict() {
         predict = false;
